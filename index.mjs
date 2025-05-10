@@ -18,7 +18,6 @@ const trophies = await page.$$eval('tr', results =>
     const logro = el.querySelector('b')?.innerText
     const images = el.querySelectorAll('a')
     const allTd = el.querySelectorAll('td')
-    console.log('allTd: ', allTd)
     const descripcion = allTd[2]?.innerText
     const imagenLogro = images[0]?.getAttribute('href')
 
@@ -56,7 +55,7 @@ async function downloadAll() {
     fs.mkdirSync(folder)
   }
 
-  trophies.map(async (trophie, i) => {
+  trophies.slice(1).map(async (trophie, i) => {
     await downloadImage(trophie, i)
   })
 }
@@ -64,6 +63,7 @@ async function downloadAll() {
 // Creamos el contenido en formato legible
 const guararInfo = () => {
   const contenido = trophies
+    .slice(1)
     .map(item => `Logro:\n${item.logro}\nDescripción:\n${item.descripcion}\n\n`)
     .join('')
 
@@ -71,10 +71,14 @@ const guararInfo = () => {
   const rutaArchivo = path.resolve('logros.txt')
 
   // Guardar el archivo
-  fs.writeFileSync(rutaArchivo, contenido, 'utf-8')
+  try {
+    console.log(`✅ Archivo guardado con Exito`)
+    fs.writeFileSync(rutaArchivo, contenido, 'utf-8')
+  } catch (error) {
+    console.error(`❌ Error al guardar el archivo.`)
+  }
 }
 
-console.log(trophies)
 await browser.close()
 
 downloadAll()
